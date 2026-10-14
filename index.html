@@ -246,9 +246,8 @@
   cross.position.y = TOP - 0.0125;
   topGroup.add(cross);
 
-  // ---------- ĐÃ ĐẶT LẠI VỊ TRÍ QUẠT KHỚP VỚI LỖ NẮP ----------
   var fan = new THREE.Group();
-  fan.position.y = TOP + 0.02; // Đã hạ từ +0.12 xuống +0.02 để quạt nằm đúng bề mặt lỗ nắp
+  fan.position.y = TOP + 0.02;
   fan.add(caster(edges(new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.04,24), foamMat))));
   var ring = caster(new THREE.Mesh(new THREE.RingGeometry(0.72,0.8,64), bladeMat));
   ring.rotation.x = -Math.PI/2;
@@ -525,7 +524,7 @@
     targetRadius = clamp(targetRadius * Math.exp(e.deltaY*0.0012), 2.5, MAXR);
   }, {passive:false});
 
-  var mode = 'bp', dimsOn = true, candleOn = true, fanOn = false, explode = 0, explodeTarget = 0;
+  var mode = 'bp', dimsOn = true, fanOn = false, explode = 0, explodeTarget = 0;
   var legend = document.getElementById('legend');
   var bFan = document.getElementById('bFan');
   var scenesPanel = document.getElementById('scenes');
@@ -645,7 +644,6 @@
     dimsOn = !dimsOn; el.classList.toggle('on', dimsOn);
     dims.visible = dimsOn; legend.style.display = dimsOn ? 'block' : 'none';
   });
-  toggle('bLight', function(el){ candleOn = !candleOn; el.classList.toggle('on', candleOn); });
   toggle('bAuto', function(el){ autoRotate = !autoRotate; el.classList.toggle('on', autoRotate); });
   toggle('bFan', function(el){ fanOn = !fanOn; el.classList.toggle('on', fanOn); });
   toggle('bMica', function(el){ mica.visible = !mica.visible; el.classList.toggle('on', mica.visible); });
@@ -672,10 +670,11 @@
     );
     camera.lookAt(target);
 
-    lit += ((real && candleOn ? 1 : 0) - lit)*0.12;
+    // Mặc định luôn bật sáng (lit = 1 khi ở chế độ thực tế)
+    lit += ((real ? 1 : 0) - lit)*0.12;
     if(now > nextFlk){ flkT = 0.84 + Math.random()*0.26; nextFlk = now + 60 + Math.random()*120; }
     flk += (flkT - flk)*0.2;
-    var flick = (real && candleOn) ? (flk + 0.04*Math.sin(now*0.017)) : 1;
+    var flick = real ? (flk + 0.04*Math.sin(now*0.017)) : 1;
     if(real){
       var sx = Math.sin(now*0.0093)*0.012 + (flk-1)*0.02;
       var sz = Math.cos(now*0.0071)*0.012;
@@ -704,7 +703,7 @@
       ambient.intensity = 0.55; hemi.intensity = 0; key.intensity = 0.7;
     }
 
-    var spin = fanOn && (!real || candleOn);
+    var spin = fanOn && (!real || true);
     fanSpeed += ((spin?2.6:0) - fanSpeed)*0.03;
     fan.rotation.y += fanSpeed*dt;
 
