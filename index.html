@@ -35,7 +35,7 @@
   <div id="bar">
     <button id="bDim" class="on">Kích thước</button>
     <button id="bAuto">Tự xoay</button>
-    <button id="bFan">Quay Quạt</button>
+    <button id="bFan">Quay quạt</button>
     <button id="bMica" class="on">Ruột</button>
     <button id="bExp">Tách </button>
     <button id="bReset">Reset</button>
@@ -45,7 +45,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-  // 1 đơn vị trong mô hình = UNIT_CM cm (chỉnh số này nếu kích thước thật khác)
   var UNIT_CM = 10;
 
   var scene = new THREE.Scene();
@@ -64,7 +63,7 @@
   var APO = R*Math.cos(Math.PI/6);
   var W = R, H = 2.0, T = 0.075, D = 0.045, LEG = 0.18;
   var TOP = LEG + H;
-  var EX = 0.9, LIFT = 1.3; // độ dịch khi tách rời
+  var EX = 0.9, LIFT = 1.3;
   function cm(u){ var v = u*UNIT_CM; return (Math.round(v*10)/10).toString().replace('.',',') + ' cm'; }
 
   // ---------- Ánh sáng ----------
@@ -256,7 +255,7 @@
   }
 
   // Cao tổng (bên phải) – đầu trên đi theo phần nắp khi tách rời
-  addDim('Cao ' + cm(TOP), function(e){
+  addDim('Chiều cao ' + cm(TOP), function(e){
     return {p1:new V(R,0,0), p2:new V(R,TOP+LIFT*e,0), off:new V(0.6+0.6*e,0,0)};
   });
   // Cao khung – bám theo mặt trước
@@ -264,15 +263,15 @@
     return {p1:new V(-W/2,LEG,APO+EX*e), p2:new V(-W/2,TOP,APO+EX*e), off:new V(-0.45,0,0.2)};
   });
   // Rộng mặt – bám theo mặt trước
-  addDim('Rộng ' + cm(W), function(e){
+  addDim('Độ rộng giữa 2 chân ' + cm(W), function(e){
     return {p1:new V(-W/2,0,APO+EX*e), p2:new V(W/2,0,APO+EX*e), off:new V(0,0,0.55)};
   });
   // Đường kính đỉnh–đỉnh (đế cố định)
-  addDim('Ø đỉnh-đỉnh ' + cm(2*R), function(e){
+  addDim('Ø Đế ' + cm(2*R), function(e){
     return {p1:new V(-R,0,0), p2:new V(R,0,0), off:new V(0,0,-1.35)};
   });
   // Đối cạnh (đế cố định)
-  addDim('Đối cạnh ' + cm(2*APO), function(e){
+  addDim('Đế ' + cm(2*APO), function(e){
     return {p1:new V(0,0,-APO), p2:new V(0,0,APO), off:new V(-1.75,0,0)};
   });
   // Quạt – nâng theo nắp
@@ -283,12 +282,12 @@
 
   // Bảng thông số
   var items = [
-    ['Cao tổng (cả chân)', TOP], ['Cao khung mặt', H], ['Rộng mỗi mặt', W],
-    ['Ø đỉnh–đỉnh', 2*R], ['Ø đối cạnh', 2*APO], ['Ø quạt', 1.6], ['Cao chân', LEG]
+    ['Tính từ chân tới đỉnh', TOP], ['Cao khung mặt', H], ['Khoảng cách 2 chân', W],
+    ['Ø mặt đắy', 2*R], ['Ø mặt đáy', 2*APO], ['Ø quạt', 1.6], ['chân', LEG]
   ];
   document.getElementById('lgBody').innerHTML =
     items.map(function(it){ return '<b>' + it[0] + ':</b> ' + cm(it[1]); }).join('<br>') +
-    '<small>Ước tính, số đo theo trạng thái lắp ráp (1 đơn vị = ' + UNIT_CM + ' cm)</small>';
+    '' + UNIT_CM + ' cm)</small>';
 
   // ---------- Điều khiển xoay / zoom ----------
   var target = new THREE.Vector3(0, 1.2, 0);
@@ -356,7 +355,7 @@
   var ui = document.getElementById('ui');
   toggle('bMenu', function(el){
     var c = ui.classList.toggle('collapsed');
-    el.textContent = c ? '▴ Hiện nút' : '▾ Thu gọn nút';
+    el.textContent = c ? '▴ Hiện' : '▾ Ẩn';
   });
   toggle('bDim', function(el){
     dims.visible = !dims.visible; el.classList.toggle('on', dims.visible);
