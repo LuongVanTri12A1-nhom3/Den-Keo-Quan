@@ -88,9 +88,13 @@
 
   function lin(hex){ return new THREE.Color(hex).convertSRGBToLinear(); }
 
-  var R = 0.8;
+  // ===== KÍCH THƯỚC CHÍNH (1 đơn vị = 10 cm) =====
+  var R = 0.8;                       // bán kính lục giác = cạnh lục giác = 8 cm
   var APO = R*Math.cos(Math.PI/6);
-  var W = R, H = 2.35, T = 0.075, D = 0.045, LEG = 0.18;
+  var W = R, H = 2.35, T = 0.075, D = 0.045, LEG = 0.18;   // W: độ rộng giữa 2 chân 8 cm; H: khung 23,5 cm
+  var FAN_D = 1.55;                  // đường kính quạt 15,5 cm
+  var FAN_R = FAN_D/2;               // 0.775
+  var HOLE_R = 0.65;                 // bán kính lỗ nắp (phải < APO = 0.693)
   var TOP = LEG + H;
   var EX = 0.9, LIFT = 1.3;
   function cm(u){ var v = u*UNIT_CM; return (Math.round(v*10)/10).toString().replace('.',',') + ' cm'; }
@@ -235,29 +239,29 @@
     if(k===0) shape.moveTo(x,y); else shape.lineTo(x,y);
   }
   shape.closePath();
-  var hole = new THREE.Path(); hole.absarc(0,0,0.72,0,Math.PI*2,true);
+  var hole = new THREE.Path(); hole.absarc(0,0,HOLE_R,0,Math.PI*2,true);
   shape.holes.push(hole);
   var plate = caster(edges(new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:0.04,bevelEnabled:false}), foamMat), 30));
   plate.rotation.x = -Math.PI/2;
   plate.position.y = TOP;
   topGroup.add(plate);
 
-  var cross = caster(edges(new THREE.Mesh(new THREE.BoxGeometry(1.7,0.025,0.1), foamMat)));
+  var cross = caster(edges(new THREE.Mesh(new THREE.BoxGeometry(1.5,0.025,0.1), foamMat)));
   cross.position.y = TOP - 0.0125;
   topGroup.add(cross);
 
   var fan = new THREE.Group();
   fan.position.y = TOP + 0.02;
   fan.add(caster(edges(new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.04,24), foamMat))));
-  var ring = caster(new THREE.Mesh(new THREE.RingGeometry(0.72,0.8,64), bladeMat));
+  var ring = caster(new THREE.Mesh(new THREE.RingGeometry(FAN_R-0.0775,FAN_R,64), bladeMat));
   ring.rotation.x = -Math.PI/2;
   fan.add(ring);
   var N = 18;
   for(var b=0;b<N;b++){
     var pivot = new THREE.Group();
     pivot.rotation.y = b*2*Math.PI/N;
-    var blade = caster(edges(new THREE.Mesh(new THREE.BoxGeometry(0.66,0.008,0.17), bladeMat)));
-    blade.position.x = 0.42;
+    var blade = caster(edges(new THREE.Mesh(new THREE.BoxGeometry(0.64,0.008,0.165), bladeMat)));
+    blade.position.x = 0.407;
     blade.rotation.x = 0.8;
     pivot.add(blade);
     fan.add(pivot);
@@ -266,7 +270,7 @@
 
   var micaH = H*0.9;
   var mica = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.72,0.72,micaH,64,1,true),
+    new THREE.CylinderGeometry(HOLE_R,HOLE_R,micaH,64,1,true),
     new THREE.MeshStandardMaterial({color:0xcfe8ff, transparent:true, opacity:0.14, side:THREE.DoubleSide, depthWrite:false})
   );
   mica.position.y = TOP - micaH/2 - 0.02;
@@ -462,14 +466,14 @@
   addDim('Đế ' + cm(2*APO), function(e){
     return {p1:new V(0,0,-APO), p2:new V(0,0,APO), off:new V(-1.75,0,0)};
   });
-  addDim('Quạt Ø' + cm(1.6), function(e){
-    return {p1:new V(-0.8,TOP+0.12+LIFT*e,0), p2:new V(0.8,TOP+0.12+LIFT*e,0), off:new V(0,0.5,0)};
+  addDim('Quạt Ø' + cm(FAN_D), function(e){
+    return {p1:new V(-FAN_R,TOP+0.12+LIFT*e,0), p2:new V(FAN_R,TOP+0.12+LIFT*e,0), off:new V(0,0.5,0)};
   }, new V(0,0.2,0));
   updateDims(0);
 
   var items = [
     ['Tính từ chân tới đỉnh', TOP], ['Khung', H], ['Khoảng cách 2 chân', W],
-    ['Ø mặt đế (đỉnh–đỉnh)', 2*R], ['Ø mặt đế (đối cạnh)', 2*APO], ['Ø quạt', 1.6], ['Chân', LEG]
+    ['Ø mặt đế (đỉnh–đỉnh)', 2*R], ['Ø mặt đế (đối cạnh)', 2*APO], ['Ø quạt', FAN_D], ['Chân', LEG]
   ];
   document.getElementById('lgBody').innerHTML =
     items.map(function(it){ return '<b>' + it[0] + ':</b> ' + cm(it[1]); }).join('<br>');
